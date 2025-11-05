@@ -1,0 +1,1394 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    /* Adobe-inspired palette and global styles */
+    :root {
+        --adobe-blue: #0265dc;
+        --adobe-blue-hover: #0052b3;
+        --adobe-gray-50: #fafafa;
+        --adobe-gray-100: #f4f4f4;
+        --adobe-gray-200: #eaeaea;
+        --adobe-gray-300: #e3e3e3;
+        --adobe-gray-400: #d3d3d3;
+        --adobe-gray-500: #cacaca;
+        --adobe-gray-600: #b2b2b2;
+        --adobe-gray-700: #8e8e8e;
+        --adobe-gray-800: #505050;
+        --adobe-gray-900: #323232;
+        --text-color: #4b4b4b;
+        --metric-color: #e67e22;
+        --dim-color: #0c84e8;
+        --system-color: #6c757d;
+        --radio-checked-color: var(--adobe-blue);
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--adobe-gray-100);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+    }
+    .preview-container {
+        max-width: 1400px;
+        margin: 20px auto;
+        background: #fff;
+        border: 1px solid var(--adobe-gray-300);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    /* Main Tab Navigation */
+    .main-tab-bar {
+        display: flex;
+        background-color: var(--adobe-gray-50);
+        border-bottom: 1px solid var(--adobe-gray-300);
+        padding: 0 20px;
+    }
+    .main-tab-link {
+        padding: 16px 20px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        font-weight: 600;
+        color: var(--adobe-gray-700);
+        font-size: 16px;
+        transition: all 0.2s ease;
+        margin-right: 10px;
+    }
+    .main-tab-link:hover {
+        background-color: var(--adobe-gray-100);
+        color: var(--adobe-blue);
+    }
+    .main-tab-link.active {
+        border-bottom-color: var(--adobe-blue);
+        color: var(--adobe-blue);
+        background-color: #fff;
+    }
+    .main-tab-content {
+        padding: 25px;
+        min-height: 650px;
+    }
+    .main-tab-pane {
+        display: none;
+    }
+    .main-tab-pane.active {
+        display: block;
+    }
+
+    /* General Content Styling */
+    h2 {
+        color: #000;
+        border-bottom: 1px solid var(--adobe-gray-200);
+        padding-bottom: 10px;
+        margin-top: 0;
+        font-size: 24px;
+        font-weight: 400;
+    }
+    h3 {
+        color: var(--adobe-gray-900);
+        margin-top: 25px;
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    p, li {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    code {
+        background-color: #eef;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    .info-box {
+        background-color: #f4f8ff;
+        border: 1px solid #c9ddff;
+        border-left: 4px solid var(--adobe-blue);
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    .info-box strong {
+        color: #0056b3;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--adobe-gray-300);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    th, td {
+        border-bottom: 1px solid var(--adobe-gray-300);
+        padding: 12px 15px;
+        text-align: left;
+    }
+    th {
+        background-color: var(--adobe-gray-50);
+        font-weight: 600;
+        font-size: 14px;
+    }
+    tbody tr:last-child th,
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+    tr:nth-child(even) {
+        background-color: var(--adobe-gray-50);
+    }
+
+    /* Spectrum-like Button */
+    .button {
+        padding: 8px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 16px; /* Pill shape */
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+        line-height: 1.5;
+    }
+    .button-primary {
+        background-color: var(--adobe-blue);
+        color: #fff;
+        border-color: var(--adobe-blue);
+    }
+    .button-primary:hover { 
+        background-color: var(--adobe-blue-hover); 
+        border-color: var(--adobe-blue-hover);
+    }
+    .button-secondary {
+        background-color: #fff;
+        color: var(--adobe-gray-800);
+        border-color: var(--adobe-gray-400);
+    }
+    .button-secondary:hover { 
+        background-color: var(--adobe-gray-100);
+        border-color: var(--adobe-gray-600);
+    }
+
+    /* --- Tab 3: Connection Setup --- */
+    .connection-container {
+        border: 1px solid var(--adobe-gray-400);
+        border-radius: 6px;
+        background: #fff;
+        min-height: 600px;
+    }
+    .connection-header {
+        padding: 12px 20px;
+        background: var(--adobe-gray-50);
+        border-bottom: 1px solid var(--adobe-gray-300);
+    }
+    .connection-header h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        padding: 0;
+        border: none;
+        color: var(--adobe-gray-900);
+    }
+    .connection-body {
+        display: flex;
+    }
+    .connection-left-nav {
+        width: 250px;
+        border-right: 1px solid var(--adobe-gray-300);
+        padding: 20px 0;
+        background: var(--adobe-gray-50);
+    }
+    .connection-nav-item {
+        padding: 12px 20px;
+        font-weight: 500;
+        color: var(--adobe-gray-800);
+        cursor: pointer;
+        border-left: 3px solid transparent;
+    }
+    .connection-nav-item:hover {
+        background: var(--adobe-gray-100);
+        color: var(--adobe-blue);
+    }
+    .connection-nav-item.active {
+        background: #fff;
+        color: var(--adobe-blue);
+        border-left-color: var(--adobe-blue);
+        font-weight: 600;
+    }
+    .connection-main {
+        flex: 1;
+        padding: 25px;
+        overflow-x: auto;
+    }
+    .connection-main h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 0;
+    }
+    .dataset-card {
+        border: 1px solid var(--adobe-gray-400);
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+    .dataset-card-header {
+        padding: 15px 20px;
+        background: var(--adobe-gray-50);
+        border-bottom: 1px solid var(--adobe-gray-300);
+        font-weight: 600;
+    }
+    .dataset-card-body {
+        padding: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    .form-group select, .form-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--adobe-gray-400);
+        border-radius: 4px;
+        box-sizing: border-box; 
+        font-size: 15px;
+    }
+    
+    /* Connection Join UI */
+    .join-pair-card {
+        border: 1px solid var(--adobe-gray-300);
+        border-radius: 6px;
+        margin-top: 20px;
+        background: #fff;
+    }
+    .join-pair-header {
+        padding: 10px 20px;
+        background: var(--adobe-gray-100);
+        border-bottom: 1px solid var(--adobe-gray-300);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .join-pair-header h4 {
+        margin: 0;
+        font-size: 16px;
+    }
+    .path-name-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .path-name-group label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 0; /* Override */
+    }
+    .path-name-group input {
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid var(--adobe-gray-400);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--adobe-blue);
+        width: 200px;
+    }
+    .join-pair-body {
+        padding: 25px;
+    }
+    .radio-group {
+        margin-bottom: 20px;
+    }
+    .radio-group label {
+        display: inline-block;
+        margin-right: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0; /* Override */
+    }
+    .radio-group input[type="radio"] {
+        display: none;
+    }
+    .radio-group input[type="radio"] + .radio-label::before {
+        content: '';
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--adobe-gray-500);
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: middle;
+        transition: all 0.2s;
+    }
+    .radio-group input[type="radio"]:checked + .radio-label::before {
+        border-color: var(--radio-checked-color);
+        background-color: #fff;
+        box-shadow: 0 0 0 4px #fff inset, 0 0 0 10px var(--radio-checked-color) inset;
+    }
+    .key-pair-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    .key-pair-col {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    /* --- Tab 4: Data View Config --- */
+    .dv-container {
+        border: 1px solid var(--adobe-gray-300);
+        background: #fff;
+        height: 700px;
+        display: flex;
+        flex-direction: column;
+    }
+    .dv-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--adobe-gray-300);
+        background: var(--adobe-gray-50);
+    }
+    .dv-header-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--adobe-gray-800);
+    }
+    .dv-header-title span {
+        color: var(--adobe-gray-900);
+        font-weight: 700;
+    }
+    .dv-header-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    .dv-subnav {
+        display: flex;
+        padding: 0 20px;
+        border-bottom: 1px solid var(--adobe-gray-300);
+    }
+    .dv-subnav-item {
+        padding: 12px 16px;
+        font-weight: 600;
+        color: var(--adobe-gray-700);
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+    }
+    .dv-subnav-item.active {
+        color: var(--adobe-blue);
+        border-bottom-color: var(--adobe-blue);
+    }
+    .dv-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+    .dv-left-panel {
+        width: 25%;
+        border-right: 1px solid var(--adobe-gray-300);
+        padding: 20px;
+        overflow-y: auto;
+        background: var(--adobe-gray-50);
+        min-width: 250px;
+    }
+    .dv-middle-panel {
+        width: 45%;
+        border-right: 1px solid var(--adobe-gray-300);
+        overflow-y: auto;
+        min-width: 300px;
+    }
+    .dv-right-panel {
+        width: 30%;
+        overflow-y: auto;
+        background: var(--adobe-gray-50);
+        min-width: 250px;
+    }
+    .dv-search-bar {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .dv-search-bar input {
+        width: 100%;
+        padding: 10px 10px 10px 35px;
+        border-radius: 4px;
+        border: 1px solid var(--adobe-gray-400);
+        box-sizing: border-box;
+    }
+    .dv-search-bar svg {
+        position: absolute;
+        left: 10px;
+        top: 11px;
+        width: 16px;
+        height: 16px;
+        color: var(--adobe-gray-700);
+    }
+    .dv-dataset-group h4 {
+        margin: 20px 0 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--adobe-gray-800);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    .dv-dataset-group h4::before {
+        content: '►';
+        font-size: 10px;
+        margin-right: 8px;
+        transition: transform 0.2s;
+    }
+    .dv-dataset-group.expanded h4::before {
+        transform: rotate(90deg);
+    }
+    
+    .dv-component-list {
+        padding-left: 10px;
+        display: none; /* Hidden by default */
+    }
+    .dv-dataset-group.expanded .dv-component-list {
+        display: block; /* Show when group is open */
+    }
+    
+    /* Path Chooser */
+    .dv-path-chooser {
+        padding-left: 10px;
+        margin-bottom: 10px;
+        display: none; /* Hidden by default */
+    }
+    .dv-dataset-group.expanded .dv-path-chooser {
+        display: block;
+    }
+    .dv-path-chooser-header {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--adobe-gray-700);
+        margin-bottom: 8px;
+    }
+    .dv-path-chooser .radio-group {
+        margin-bottom: 10px;
+    }
+    .dv-path-chooser .radio-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .dv-component-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+    .dv-component-item .icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    .dv-component-item .component-text {
+        flex: 1;
+        min-width: 0;
+    }
+    .dv-component-item .component-name {
+        font-weight: 500;
+        font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .dv-component-item .component-path {
+        font-size: 13px;
+        color: var(--adobe-gray-700);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .dv-add-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid var(--adobe-gray-400);
+        background: #fff;
+        color: var(--adobe-gray-700);
+        font-size: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 28px;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    .dv-add-btn:hover {
+        border-color: var(--adobe-blue);
+        color: var(--adobe-blue);
+    }
+    /* Dimmed fields when path is not selected */
+    .dv-component-list.dimmed {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    .dv-component-list.dimmed .dv-add-btn {
+        cursor: not-allowed;
+    }
+    .dv-dataset-group[data-group-id="group-opp"] .dv-component-list {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    .dv-dataset-group[data-group-id="group-opp"] .dv-component-list.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .dv-middle-panel table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    .dv-middle-panel th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--adobe-gray-700);
+        text-transform: uppercase;
+        padding: 10px 15px;
+    }
+    .dv-middle-panel td {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+    .dv-middle-panel tbody tr {
+        cursor: pointer;
+    }
+    .dv-middle-panel tbody tr:hover {
+        background: #f4f8ff;
+    }
+    .dv-middle-panel tbody tr.selected {
+        background: #e6f2ff;
+        border-left: 3px solid var(--adobe-blue);
+    }
+    .dv-middle-panel .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    .dv-middle-panel .component-name {
+        font-weight: 500;
+    }
+    .dv-right-panel-placeholder {
+        padding: 40px;
+        text-align: center;
+        color: var(--adobe-gray-700);
+    }
+    .dv-right-panel-placeholder svg {
+        width: 60px;
+        height: 60px;
+        color: var(--adobe-gray-400);
+        margin-bottom: 20px;
+    }
+    .dv-right-panel-settings {
+        padding: 25px;
+    }
+    .dv-right-panel-settings h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 0;
+    }
+    .dv-right-panel-settings .form-group label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--adobe-gray-700);
+    }
+
+    /* --- Tab 5: Workspace Analysis --- */
+    .workspace-ui {
+        background: var(--adobe-gray-100);
+        border: 1px solid var(--adobe-gray-300);
+        border-radius: 6px;
+        padding: 20px;
+    }
+    .panel {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        border: 1px solid var(--adobe-gray-300);
+    }
+    .panel-header {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--adobe-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .panel-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .panel-header .date-range {
+        font-size: 14px;
+        color: var(--adobe-gray-800);
+        background: var(--adobe-gray-100);
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+    .panel-body {
+        padding: 20px;
+        overflow-x: auto; /* Added for table responsiveness */
+    }
+    .panel-body table {
+        border: none;
+        box-shadow: none;
+    }
+    .panel-body table th {
+        background-color: var(--adobe-gray-100);
+    }
+    .panel-body table th, .panel-body table td {
+        text-align: right;
+        padding: 14px;
+    }
+    .panel-body table th:first-child,
+    .panel-body table td:first-child {
+        text-align: left;
+        font-weight: 600;
+    }
+    .panel-body table tr:last-child {
+        background-color: var(--adobe-gray-100);
+        font-weight: bold;
+    }
+    .panel-body table tr:last-child td,
+    .panel-body table tr:last-child th {
+        border-bottom: none;
+    }
+    .explanation {
+        margin-top: 25px;
+    }
+    .explanation li {
+        margin-bottom: 12px;
+    }
+    .metric-filter {
+        font-size: 12px;
+        color: var(--adobe-gray-700);
+        display: block;
+        font-weight: normal;
+    }
+
+    /* Helper Classes */
+    .clickable {
+        cursor: pointer;
+    }
+    .d-none {
+        display: none !important;
+    }
+
+    /* SVG Icons */
+    .icon-metric { color: var(--metric-color); }
+    .icon-dim { color: var(--dim-color); }
+    .icon-system { color: var(--system-color); }
+</style>
+</head>
+<body>
+
+<!-- SVGs for icons -->
+<svg style="display:none;">
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+    <symbol id="icon-metric" viewBox="0 0 24 24" fill="currentColor"><path d="M21 7.24V16.76C21 17.5 20.5 18 20 18H4C3.5 18 3 17.5 3 16.76V7.24C3 6.5 3.5 6 4 6H20C20.5 6 21 6.5 21 7.24ZM12 17C14.76 17 17 14.76 17 12S14.76 7 12 7 7 9.24 7 12 9.24 17 12 17Z"/></symbol>
+    <symbol id="icon-dim" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18h17v-6H4v6zM4 5v6h17V5H4z"/></symbol>
+    <symbol id="icon-system" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-1.01l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.28-1.17.61-1.69 1.01l-2.49-1c-.23-.08-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19-.15-.24-.42-.12-.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69 1.01l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38 2.65c.61-.28 1.17-.61 1.69-1.01l2.49 1c.23.08.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></symbol>
+</svg>
+
+<div class="preview-container">
+    <div class="main-tab-bar">
+        <div class="main-tab-link active" onclick="openMainTab(event, 'tab-1')">1. Overview</div>
+        <div class="main-tab-link" onclick="openMainTab(event, 'tab-2')">2. Datasets & Joins</div>
+        <div class="main-tab-link" onclick="openMainTab(event, 'tab-3')">3. Connection Setup</div>
+        <div class="main-tab-link" onclick="openMainTab(event, 'tab-4')">4. Data View Config</div>
+        <div class="main-tab-link" onclick="openMainTab(event, 'tab-5')">5. Workspace Analysis</div>
+    </div>
+
+    <!-- ===== TAB 1: OVERVIEW ===== -->
+    <div id="tab-1" class="main-tab-content main-tab-pane active">
+        <h2>B2B Use Case: Profile+Event (Multi-Metric Query)</h2>
+        <p>This prototype demonstrates a <strong>Profile+Event Multi-Metric query</strong>, which produces a result similar to a "Right Outer Join."</p>
+        
+        <h3>Persona</h3>
+        <p>A Sales Director.</p>
+
+        <h3>Use Case</h3>
+        <p>The Sales Director needs a complete view of all accounts with an open pipeline. They must see *all* accounts with open opportunities, sorted by value, and then append any recent sales activity to that list to spot high-value, un-engaged accounts.</p>
+        
+        <h3>Business Question</h3>
+        <p><strong>"I need a single report of *all* my accounts with 'Open' opportunities, sorted by the total value of those opps. For each account, show me the number of 'Sales Calls' from the last 30 days."</strong></p>
+
+        <div class="info-box">
+            <strong>Key Concept: Profile+Event (Multi-Metric Query)</strong><br>
+            This query mixes scopes. It uses a **Profile-scoped metric** (`Total Open Opp Value`) and an **Event-scoped metric** (`Sales Calls`). When Workspace sees a profile-scoped metric, it builds the table based on the *full profile list* first (all accounts with "Open" opps). It then joins the event data from the panel's date range. Accounts with no matching events (no sales calls) will show <strong><code>0</code></strong> for the event metric, rather than being dropped from the table.
+        </div>
+    </div>
+
+    <!-- ===== TAB 2: DATASETS & JOINS ===== -->
+    <div id="tab-2" class="main-tab-content main-tab-pane">
+        <h2>Datasets & Joins</h2>
+        <p>This query requires a standard B2B setup with Event, Account, and Opportunity datasets.</p>
+
+        <h3>1. Event Dataset</h3>
+        <p>Contains all web and sales events. Note that `A-200` has no 'Sales Call' events in the last 30 days.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>timestamp</th>
+                    <th>account_id</th>
+                    <th>event_type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>(Last 30 days)</td><td>A-100</td><td>'Sales Call'</td></tr>
+                <tr><td>(Last 30 days)</td><td>A-100</td><td>'Sales Call'</td></tr>
+                <tr><td>(Last 30 days)</td><td>A-300</td><td>'Sales Call'</td></tr>
+                <tr><td>(Last 30 days)</td><td>A-200</td><td>'Web Visit'</td></tr>
+                <tr><td>(Older than 30 days)</td><td>A-200</td><td>'Sales Call'</td></tr>
+            </tbody>
+        </table>
+
+        <h3>2. Account Lookup</h3>
+        <p>Contains the master list of all known accounts.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>account_id (Primary ID)</th>
+                    <th>account_name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>A-100</td><td>Global Tech Inc.</td></tr>
+                <tr><td>A-200</td><td>Innovate Solutions</td></tr>
+                <tr><td>A-300</td><td>SMB Services</td></tr>
+            </tbody>
+        </table>
+        
+        <h3>3. Opportunity Lookup</h3>
+        <p>Contains pipeline data. Note `A-100` has an "Open" and "Closed" opp. `A-200` and `A-300` have only "Open" opps.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>opportunity_id</th>
+                    <th>account_id</th>
+                    <th>opp_value</th>
+                    <th>status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>O-101</td><td>A-100</td><td>5000000</td><td>Open</td></tr>
+                <tr><td>O-102</td><td>A-100</td><td>1000000</td><td>Closed-Won</td></tr>
+                <tr><td>O-201</td><td>A-200</td><td>2000000</td><td>Open</td></tr>
+                <tr><td>O-301</td><td>A-300</td><td>500000</td><td>Open</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Required Joins</h3>
+        <ol>
+            <li>`Event Dataset` is joined to the `Account` container.</li>
+            <li>`Account Lookup` is joined to the `Account` container (Path: `Account_Profile_Join`).</li>
+            <li>`Opportunity Lookup` is joined twice:
+                <ul>
+                    <li>Once to the `Opportunity` container (Path: `Event_Opportunity_Join`) for event-based reporting.</li>
+                    <li>Once to the `Account` container (Path: `Account_Opportunities_Join`) for profile-based reporting.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- ===== TAB 3: CONNECTION SETUP ===== -->
+    <div id="tab-3" class="main-tab-content main-tab-pane">
+        <div class="connection-container">
+            <div class="connection-header">
+                <h2>B2B Main Connection</h2>
+            </div>
+            <div class="connection-body">
+                <div class="connection-left-nav">
+                    <div class="connection-nav-item active" onclick="switchConnectionTab(event, 'conn-tab-event')">Event datasets</div>
+                    <div class="connection-nav-item" onclick="switchConnectionTab(event, 'conn-tab-profile')">Profile datasets</div>
+                    <div class="connection-nav-item" onclick="switchConnectionTab(event, 'conn-tab-lookup')">Lookup datasets</div>
+                </div>
+                <div class="connection-main">
+                    <!-- Event Datasets Pane -->
+                    <div id="conn-tab-event" class="connection-pane active">
+                        <h3>Event datasets</h3>
+                        <div class="dataset-card">
+                            <div class="dataset-card-header">B2B Web and Sales Events</div>
+                            <div class="dataset-card-body">
+                                <div class="form-group">
+                                    <label for="account-id">Account ID</label>
+                                    <select id="account-id" disabled><option selected>account_id</option></select>
+                                </div>
+                                 <div class="form-group">
+                                    <label for="opp-id">Opportunity ID</label>
+                                    <select id="opp-id" disabled><option selected>opportunity_id</option></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Profile Datasets Pane -->
+                    <div id="conn-tab-profile" class="connection-pane d-none">
+                        <h3>Profile datasets</h3>
+                        <p>No Person profile datasets are added in this B2B connection.</p>
+                    </div>
+                    <!-- Lookup Datasets Pane -->
+                    <div id="conn-tab-lookup" class="connection-pane d-none">
+                        <h3>Lookup datasets</h3>
+                        <!-- Account Lookup -->
+                        <div class="dataset-card">
+                            <div class="dataset-card-header">Account Lookup</div>
+                            <div class="dataset-card-body">
+                                <div class="join-pair-card">
+                                    <div class="join-pair-header">
+                                        <h4>Key pair #1</h4>
+                                        <div class="path-name-group">
+                                            <label for="path-name-acc-1">Path name:</label>
+                                            <input type="text" id="path-name-acc-1" value="Account_Profile_Join" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="join-pair-body">
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="match-method-acc-1" disabled> <span class="radio-label">Match by field</span></label>
+                                            <label><input type="radio" name="match-method-acc-1" checked> <span class="radio-label">Match by <strong>container</strong></span></label>
+                                        </div>
+                                        <div class="key-pair-row">
+                                            <div class="key-pair-col form-group">
+                                                <label for="lookup-key-acc-1">Matching key type</label>
+                                                <select id="lookup-key-acc-1" disabled><option selected>Account</option></select>
+                                            </div>
+                                            <div class="key-pair-col form-group">
+                                                <label for="source-key-acc-1">Account field (from this lookup)</label>
+                                                <select id="source-key-acc-1" disabled><option selected>account_id</option></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Opportunity Lookup -->
+                        <div class="dataset-card">
+                            <div class="dataset-card-header">Opportunity Lookup</div>
+                            <div class="dataset-card-body">
+                                <!-- Key Pair 1: Event Join -->
+                                <div class="join-pair-card">
+                                    <div class="join-pair-header">
+                                        <h4>Key pair #1</h4>
+                                        <div class="path-name-group">
+                                            <label for="path-name-opp-1">Path name:</label>
+                                            <input type="text" id="path-name-opp-1" value="Event_Opportunity_Join" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="join-pair-body">
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="match-method-opp-1" disabled> <span class="radio-label">Match by field</span></label>
+                                            <label><input type="radio" name="match-method-opp-1" checked> <span class="radio-label">Match by <strong>container</strong></span></label>
+                                        </div>
+                                        <div class="key-pair-row">
+                                            <div class="key-pair-col form-group">
+                                                <label for="lookup-key-opp-1">Matching key type</label>
+                                                <select id="lookup-key-opp-1" disabled><option selected>Opportunity</option></select>
+                                            </div>
+                                            <div class="key-pair-col form-group">
+                                                <label for="source-key-opp-1">Opportunity field (from this lookup)</label>
+                                                <select id="source-key-opp-1" disabled><option selected>opportunity_id</option></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Key Pair 2: Profile/TPR Join -->
+                                <div class="join-pair-card">
+                                    <div class="join-pair-header">
+                                        <h4>Key pair #2</h4>
+                                        <div class="path-name-group">
+                                            <label for="path-name-opp-2">Path name:</label>
+                                            <input type="text" id="path-name-opp-2" value="Account_Opportunities_Join" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="join-pair-body">
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="match-method-opp-2" disabled> <span class="radio-label">Match by field</span></label>
+                                            <label><input type="radio" name="match-method-opp-2" checked> <span class="radio-label">Match by <strong>container</strong></span></label>
+                                        </div>
+                                        <div class="key-pair-row">
+                                            <div class="key-pair-col form-group">
+                                                <label for="lookup-key-opp-2">Matching key type</label>
+                                                <select id="lookup-key-opp-2" disabled><option selected>Account</option></select>
+                                            </div>
+                                            <div class="key-pair-col form-group">
+                                                <label for="source-key-opp-2">Account field (from this lookup)</label>
+                                                <select id="source-key-opp-2" disabled><option selected>account_id</option></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TAB 4: DATA VIEW CONFIG ===== -->
+    <div id="tab-4" class="main-tab-content main-tab-pane">
+        <div class="dv-container">
+            <!-- Header -->
+            <div class="dv-header">
+                <div class="dv-header-title">Data views > <span>B2B Main DV</span></div>
+                <div class="dv-header-buttons">
+                    <button class="button button-secondary">Close</button>
+                    <button class="button button-secondary">Save</button>
+                    <button class="button button-primary">Save and continue</button>
+                </div>
+            </div>
+            <!-- Subnav -->
+            <div class="dv-subnav">
+                <div class="dv-subnav-item">Configure</div>
+                <div class="dv-subnav-item active">Components</div>
+                <div class="dv-subnav-item">Settings</div>
+            </div>
+            <!-- Body -->
+            <div class="dv-body">
+                <!-- Left Panel -->
+                <div class="dv-left-panel">
+                    <div class="dv-search-bar">
+                        <svg><use href="#icon-search"></use></svg>
+                        <input type="text" placeholder="Search components" onkeyup="filterComponents(this.value)">
+                    </div>
+
+                    <div class="dv-dataset-group expanded" data-group-id="group-system">
+                        <h4 onclick="toggleDvGroup('group-system')">SYSTEM-GENERATED COMPONENTS</h4>
+                        <div class="dv-component-list">
+                            <div id="dv-comp-total-accounts" class="dv-component-item" data-name="Total Accounts">
+                                <svg class="icon icon-system"><use href="#icon-system"></use></svg>
+                                <div class="component-text">
+                                    <div class="component-name">Total Accounts</div>
+                                    <div class="component-path">System-Generated (Profile-Only)</div>
+                                </div>
+                                <button class="dv-add-btn" onclick="dvAddComponent('total-accounts', 'system')">+</button>
+                            </div>
+                            <!-- Other system metrics... -->
+                        </div>
+                    </div>
+                    
+                    <div class="dv-dataset-group expanded" data-group-id="group-account">
+                        <h4 onclick="toggleDvGroup('group-account')">ACCOUNT LOOKUP (LOOKUP)</h4>
+                        <div class="dv-path-chooser">
+                             <div class="dv-path-chooser-header">Choose a join path:</div>
+                             <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="path-account" onclick="dvSelectPath('account', 'Account_Profile_Join')" checked>
+                                    <span class="radio-label">Account_Profile_Join</span>
+                                </label>
+                             </div>
+                        </div>
+                        <div class="dv-component-list active">
+                            <div id="dv-comp-name" class="dv-component-item" data-name="Account Name">
+                                <svg class="icon icon-dim"><use href="#icon-dim"></use></svg>
+                                <div class="component-text">
+                                    <div class="component-name">Account Name</div>
+                                </div>
+                                <button class="dv-add-btn" onclick="dvAddComponent('name', 'account')">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dv-dataset-group expanded" data-group-id="group-opp">
+                        <h4 onclick="toggleDvGroup('group-opp')">OPPORTUNITY LOOKUP (LOOKUP)</h4>
+                        <div class="dv-path-chooser">
+                             <div class="dv-path-chooser-header">Choose a join path:</div>
+                             <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="path-opp" value="Event_Opportunity_Join" onclick="dvSelectPath('opp', 'Event_Opportunity_Join')">
+                                    <span class="radio-label">Event_Opportunity_Join</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="path-opp" value="Account_Opportunities_Join" onclick="dvSelectPath('opp', 'Account_Opportunities_Join')">
+                                    <span class="radio-label">Account_Opportunities_Join</span>
+                                </label>
+                             </div>
+                        </div>
+                        <div class="dv-component-list"> <!-- Initially dimmed -->
+                            <div id="dv-comp-value" class="dv-component-item" data-name="Opportunity Value">
+                                <svg class="icon icon-metric"><use href="#icon-metric"></use></svg>
+                                <div class="component-text">
+                                    <div class="component-name">Opportunity Value</div>
+                                </div>
+                                <button class="dv-add-btn" onclick="dvAddComponent('value', 'opp')">+</button>
+                            </div>
+                            <div id="dv-comp-status" class="dv-component-item" data-name="Opportunity Status">
+                                <svg class="icon icon-dim"><use href="#icon-dim"></use></svg>
+                                <div class="component-text">
+                                    <div class="component-name">Opportunity Status</div>
+                                </div>
+                                <button class="dv-add-btn" onclick="dvAddComponent('status', 'opp')">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Middle Panel -->
+                <div class="dv-middle-panel">
+                    <table id="dv-included-table">
+                        <thead>
+                            <tr>
+                                <th>COMPONENT NAME</th>
+                                <th>DATASET</th>
+                                <th>SCHEMA PATH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Pre-populated with standard event metrics -->
+                            <tr id="dv-included-events" class="clickable" onclick="dvSelectComponent('events-1')">
+                                <td><svg class="icon icon-metric"><use href="#icon-metric"></use></svg> <span class="component-name">Events</span></td>
+                                <td>System</td>
+                                <td>n/a</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Right Panel -->
+                <div class="dv-right-panel">
+                    <div id="dv-settings-placeholder">
+                        <div class="dv-right-panel-placeholder">
+                            <svg><use href="#icon-settings"></use></svg>
+                            <h4>Select a component</h4>
+                            <p>Select a component or metric from the list to view the available settings.</p>
+                        </div>
+                    </div>
+                    <div id="dv-settings-panel" class="d-none">
+                        <!-- Settings will be injected here by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TAB 5: WORKSPACE ANALYSIS ===== -->
+    <div id="tab-5" class="main-tab-content main-tab-pane">
+        <h2>Workspace Analysis</h2>
+        <p>The Sales Director builds a table mixing a profile-scoped metric (from the Account-Opps path) and an event-scoped metric (`Events`).</p>
+        
+        <div class="workspace-ui">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Pipeline Engagement (Right Join)</span>
+                    <span class="date-range">
+                        Date Range: Last 30 Days
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <p>
+                        <strong>Filter (Profile-scoped):</strong> <code>Opportunity Status</code> (from path <code>Account_Opportunities_Join</code>) = 'Open'
+                        <br>
+                        <strong>Dimension:</strong> <code>Account Name</code> (Profile)
+                        <br>
+                        <strong>Metrics:</strong> <code>Total Open Opp Value</code> (Profile-scoped), <code>Sales Calls</code> (Event-scoped)
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Account Name (Profile)</th>
+                                <th>Total Open Opp Value (Profile-scoped)</th>
+                                <th>Sales Calls (Event-scoped)<span class="metric-filter">filter: event_type = 'Sales Call'</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Global Tech Inc.</td><td>$5,000,000</td><td>2</td></tr>
+                            <tr><td>Innovate Solutions</td><td>$2,000,000</td><td><strong>0</strong></td></tr>
+                            <tr><td>SMB Services</td><td>$500,000</td><td>1</td></tr>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td><strong>$7,500,000</strong></td>
+                                <td><strong>3</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="explanation">
+                        <h3>How This Query Works (The "Right Join")</h3>
+                        <p>This table demonstrates the "multi-metric" or "right join" query behavior, which is driven by the mix of metric scopes and the path-aware filter:</p>
+                        <ol>
+                            <li>
+                                <strong>The "Driver":</strong> The query is "driven" by two profile-scoped components:
+                                <ul>
+                                    <li>The metric <code>Total Open Opp Value</code> (which is <code>opp_value</code> set to "Total Population" scope).</li>
+                                    <li>The filter <code>Opportunity Status = 'Open'</code>.</li>
+                                </ul>
+                                Both of these *must* come from the **`Account_Opportunities_Join`** path to be valid.
+                            </li>
+                            <li>
+                                <strong>The Initial List:</strong> The system first queries the `Opportunity Lookup` (using the `Account_Opportunities_Join` path) to find all accounts that have an `status = 'Open'` opportunity. This creates the initial list: Global Tech, Innovate Solutions, and SMB Services. The "Closed-Won" opp for Global Tech is ignored.
+                            </li>
+                            <li>
+                                <strong>The "Join":</strong> The <code>Sales Calls</code> metric is <strong>"Event-based"</strong>, so it respects the "Last 30 Days" date range and the `event_type = 'Sales Call'` filter. Workspace joins this event data to the profile-based list.
+                            </li>
+                            <li>
+                                <strong>The Result (Innovate Solutions):</strong> This account is on the list because it has a $2M "Open" opp. It had *no 'Sales Call' events in the last 30 days* (only a 'Web Visit'), so it correctly shows <strong>0</strong> for the `Sales Calls` metric. This is the "right join" in action—the account is not dropped.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Main Tab Navigation ---
+    function openMainTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("main-tab-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("main-tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // --- Tab 3: Connection Setup ---
+    function switchConnectionTab(evt, tabId) {
+        document.querySelectorAll('.connection-pane').forEach(p => p.classList.add('d-none'));
+        document.querySelectorAll('.connection-nav-item').forEach(i => i.classList.remove('active'));
+        
+        const pane = document.getElementById(tabId);
+        if (pane) {
+            pane.classList.remove('d-none');
+        } else {
+            console.error("Connection pane not found:", tabId);
+        }
+        
+        if (evt && evt.currentTarget) {
+            evt.currentTarget.classList.add('active');
+        }
+    }
+
+    // --- Tab 4: Data View Config ---
+    const dvState = {
+        sourceComponents: {
+            'total-accounts': { id: 'total-accounts', name: 'Total Accounts', dataset: 'System', path: 'System-Generated (Profile-Only)', type: 'system', settings: { scope: 'Total Population (Profile-based)', behavior: 'Count Instances' } },
+            'name': { id: 'name', name: 'Account Name', dataset: 'Account Lookup', path: 'Account Lookup → Account_Profile_Join', type: 'dim', settings: {} },
+            'value': { id: 'value', name: 'Opportunity Value', dataset: 'Opportunity Lookup', path: 'n/a', type: 'metric', settings: { scope: 'Event-based (Occurrences)', behavior: 'Sum' } },
+            'status': { id: 'status', name: 'Opportunity Status', dataset: 'Opportunity Lookup', path: 'n/a', type: 'dim', settings: {} }
+        },
+        includedComponents: [
+            { instanceId: 'events-1', id: 'events', name: 'Events', dataset: 'System', path: 'n/a', type: 'system', settings: { scope: 'Event-based (Occurrences)', behavior: 'Count Instances' } }
+        ],
+        selectedInstanceId: null,
+        componentCounter: 1,
+        selectedPaths: {
+            account: 'Account_Profile_Join', // Default for single-path
+            opp: null // No default for multi-path
+        }
+    };
+
+    function filterComponents(value) {
+        const searchTerm = value.toLowerCase();
+        document.querySelectorAll('.dv-component-item').forEach(item => {
+            const name = item.getAttribute('data-name').toLowerCase();
+            if (name.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleDvGroup(groupId) {
+        document.querySelector(`.dv-dataset-group[data-group-id='${groupId}']`).classList.toggle('expanded');
+    }
+    
+    function dvSelectPath(group, pathName) {
+        dvState.selectedPaths[group] = pathName;
+        
+        // Find the component list for this group
+        const groupEl = document.querySelector(`.dv-dataset-group[data-group-id='group-${group}']`);
+        if (groupEl) {
+            const listEl = groupEl.querySelector('.dv-component-list');
+            if (listEl) {
+                listEl.classList.add('active'); // Activates the list
+            }
+        }
+        renderDataView(); // Re-render to update paths, etc.
+    }
+
+    function dvAddComponent(id, groupId) {
+        const sourceComp = dvState.sourceComponents[id];
+        if (!sourceComp) return;
+        
+        let pathKey = groupId; // 'account', 'opp'
+        let pathName = dvState.selectedPaths[pathKey];
+        
+        if (!pathName) {
+            alert('Please select a join path for this dataset first.');
+            return;
+        }
+
+        let path;
+        if (groupId === 'account') {
+            path = `Account Lookup → ${pathName}`;
+        } else if (groupId === 'opp') {
+            path = `Opportunity Lookup → ${pathName}`;
+        } else {
+            path = sourceComp.path;
+        }
+        
+        dvState.componentCounter++;
+        const instanceId = `${id}-${dvState.componentCounter}`;
+        
+        const newInstance = JSON.parse(JSON.stringify(sourceComp)); // deep copy
+        newInstance.instanceId = instanceId;
+        newInstance.path = path; // Set the dynamic path
+        newInstance.name = sourceComp.name; // Reset name to default
+
+        dvState.includedComponents.push(newInstance);
+        renderDataView();
+        dvSelectComponent(instanceId);
+    }
+
+    function dvSelectComponent(id) {
+        dvState.selectedInstanceId = id;
+        renderDataView();
+    }
+
+    function dvSaveSettings() {
+        const id = dvState.selectedInstanceId;
+        if (!id) return;
+        
+        const comp = dvState.includedComponents.find(c => c.instanceId === id);
+        if (!comp) return;
+
+        comp.name = document.getElementById('setting-name').value;
+        
+        if(comp.type === 'metric' || comp.type === 'system') {
+            if (document.getElementById('setting-scope')) {
+                comp.settings.scope = document.getElementById('setting-scope').value;
+            }
+            if (document.getElementById('setting-behavior')) {
+                comp.settings.behavior = document.getElementById('setting-behavior').value;
+            }
+        }
+        
+        dvState.selectedInstanceId = null; // Deselect after saving
+        renderDataView();
+        alert('Settings saved!');
+    }
+
+    function renderDataView() {
+        // Render Middle Panel (Included)
+        const tableBody = document.querySelector('#dv-included-table tbody');
+        tableBody.innerHTML = '';
+        dvState.includedComponents.forEach(comp => {
+            const row = document.createElement('tr');
+            row.onclick = () => dvSelectComponent(comp.instanceId);
+            if (comp.instanceId === dvState.selectedInstanceId) {
+                row.classList.add('selected');
+            }
+            
+            let iconSvg = '';
+            if(comp.type === 'metric') iconSvg = `<svg class="icon icon-metric"><use href="#icon-metric"></use></svg>`;
+            else if(comp.type === 'dim') iconSvg = `<svg class="icon icon-dim"><use href="#icon-dim"></use></svg>`;
+            else if(comp.type === 'system') iconSvg = `<svg class="icon icon-system"><use href="#icon-system"></use></svg>`;
+
+            row.innerHTML = `
+                <td>${iconSvg} <span class="component-name">${comp.name}</span></td>
+                <td>${comp.dataset}</td>
+                <td>${comp.path}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Render Right Panel (Settings)
+        const placeholder = document.getElementById('dv-settings-placeholder');
+        const settingsPanel = document.getElementById('dv-settings-panel');
+        if (!dvState.selectedInstanceId) {
+            placeholder.classList.remove('d-none');
+            settingsPanel.classList.add('d-none');
+            settingsPanel.innerHTML = '';
+        } else {
+            placeholder.classList.add('d-none');
+            settingsPanel.classList.remove('d-none');
+            
+            const comp = dvState.includedComponents.find(c => c.instanceId === dvState.selectedInstanceId);
+            if (!comp) return;
+
+            let settingsHtml = `
+                <div class="dv-right-panel-settings">
+                    <h3>Component settings</h3>
+                    <div class="form-group">
+                        <label for="setting-name">NAME</label>
+                        <input type="text" id="setting-name" value="${comp.name}">
+                    </div>
+            `;
+            
+            if(comp.type === 'metric' || comp.type === 'system') {
+                const isSystem = comp.type === 'system';
+                
+                let scopeOptions = `
+                    <option value="Event-based (Occurrences)" ${comp.settings.scope === 'Event-based (Occurrences)' ? 'selected' : ''}>Event-based (Occurrences)</option>
+                    <option value="Total Population (Profile-based)" ${comp.settings.scope === 'Total Population (Profile-based)' ? 'selected' : ''}>Total Population (Profile-based)</option>
+                `;
+                if (comp.settings.scope === 'Total Population (Union)') {
+                    scopeOptions += `<option value="Total Population (Union)" selected>Total Population (Union)</option>`;
+                }
+
+                settingsHtml += `
+                    <div class="form-group">
+                        <label for="setting-scope">SCOPE</label>
+                        <select id="setting-scope" ${isSystem ? 'disabled' : ''}>
+                           ${scopeOptions}
+                        </select>
+                        ${comp.type === 'metric' ? '<small style="color: #555; font-size: 13px;">Select "Total Population" to query all profiles, ignoring events.</small>' : ''}
+                        ${isSystem ? `<div class="info-box" style="padding: 10px; font-size: 13px; margin-top: 10px;"><strong>System Metric:</strong> Scope is locked for system-generated metrics. (${comp.settings.scope})</div>` : ''}
+                    </div>
+                    <div class="form-group">
+                        <label for="setting-behavior">BEHAVIOR</label>
+                        <select id="setting-behavior" ${isSystem ? 'disabled' : ''}>
+                            <option value="Count Instances" ${comp.settings.behavior === 'Count Instances' ? 'selected' : ''}>Count Instances</option>
+                            <option value="Sum" ${comp.settings.behavior === 'Sum' ? 'selected' : ''}>Sum</option>
+                            <option value="Average" ${comp.settings.behavior === 'Average' ? 'selected' : ''}>Average</option>
+                            <option value="Min" ${comp.settings.behavior === 'Min' ? 'selected' : ''}>Min</option>
+                            <option value="Max" ${comp.settings.behavior === 'Max' ? 'selected' : ''}>Max</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            settingsHtml += `
+                    <button class="button button-primary" onclick="dvSaveSettings()">Save</button>
+                </div>
+            `;
+            settingsPanel.innerHTML = settingsHtml;
+        }
+    }
+
+    // Initial render
+    document.addEventListener("DOMContentLoaded", function() {
+        openMainTab({currentTarget: document.querySelector('.main-tab-link.active')}, 'tab-1');
+        renderDataView();
+        
+        // Pre-select the "Events" metric to show a realistic starting state
+        dvSelectComponent('events-1');
+    });
+</script>
+
+</body>
+</html>

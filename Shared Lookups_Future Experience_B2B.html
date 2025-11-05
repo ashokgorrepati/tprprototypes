@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CJA Shared Lookups Prototype (B2B v2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+        .nav-tab.active {
+            border-bottom-color: #0d86fe;
+            color: #0d86fe;
+        }
+        .btn-primary { background-color: #0d86fe; }
+        .btn-primary:hover { background-color: #006edc; }
+        .btn-secondary { background-color: #f0f0f0; border: 1px solid #c7c7c7; color: #4b4b4b; }
+        .btn-secondary:hover { background-color: #e0e0e0; }
+        .spectrum-Tabs-item { display: inline-block; padding: 0 4px 12px 4px; margin: 0 24px -1px 0; font-size: 15px; font-weight: 500; color: #4b4b4b; border-bottom: 2px solid transparent; cursor: pointer; }
+        .spectrum-Tabs-item.is-selected { color: #2c2c2c; font-weight: 600; border-bottom-color: #0d86fe; }
+        .spectrum-Label { font-size: 12px; font-weight: 600; color: #4b4b4b; margin-bottom: 8px; display: block; }
+        .spectrum-Textfield, .spectrum-Picker { display: block; width: 100%; height: 34px; padding: 0 12px; font-size: 14px; border: 1px solid #c7c7c7; border-radius: 5px; background-color: #fff; -webkit-appearance: none; }
+        .spectrum-Picker { background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%225%22%20viewBox%3D%220%200%2010%205%22%3E%3Cpath%20d%3D%22M0%200l5%205%205-5z%22%20fill%3D%22%234b4b4b%22%2F%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 10px 5px; }
+        .badge-new { background-color: #d94434; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-left: 6px; }
+        .tooltip-container { position: relative; display: inline-block; }
+        .tooltip-icon { width: 14px; height: 14px; border-radius: 50%; background-color: #a0a0a0; color: white; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: help; }
+        .tooltip-text { visibility: hidden; width: 220px; background-color: #333; color: #fff; text-align: left; border-radius: 4px; padding: 8px; font-size: 12px; font-weight: normal; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.3s; }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .dv-left-rail { background-color: #f8f8f8; border-right: 1px solid #e0e0e0; }
+        .dv-component-group { font-size: 11px; font-weight: 600; color: #4b4b4b; padding: 8px 16px; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; background-color: #f1f1f1; display: flex; align-items: center; gap: 8px; }
+        .dv-component-group::before { content: '►'; font-size: 8px; transform: translateY(1px); }
+        .dv-component-item { font-size: 14px; padding: 6px 16px 6px 24px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .dv-component-item:hover { background-color: #e0e0e0; }
+        .dv-component-item::before { content: 'D'; font-size: 10px; font-weight: 600; color: #fff; background-color: #ea4e9d; padding: 2px 4px; border-radius: 3px; }
+        .dv-component-item.metric::before { content: 'M'; background-color: #f7a200; }
+        .dv-main-table th { font-size: 12px; font-weight: 600; color: #4b4b4b; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e0e0e0; }
+        .dv-main-table td { font-size: 14px; color: #2c2c2c; padding: 8px 12px; border-bottom: 1px solid #f1f1f1; }
+        .dv-main-table tr.selected-row { background-color: #e6f0ff; }
+        .dv-main-table .delete-btn { visibility: hidden; opacity: 0; transition: opacity 0.2s; }
+        .dv-main-table tr:hover .delete-btn, .dv-main-table tr.selected-row .delete-btn { visibility: visible; opacity: 1; }
+        .ws-table th { background-color: #f9f9f9; font-weight: 600; color: #4b4b4b; }
+        .dv-dataset-item { font-size: 14px; padding: 8px 16px; display: flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; }
+        .dv-dataset-item.active, .dv-dataset-item:hover { background-color: #e0e0e0; }
+        .lookup-flyout { background-color: #f0f0f0; padding: 12px 16px; border-bottom: 1px solid #d0d0d0; }
+        .lookup-flyout h4 { font-size: 13px; font-weight: 600; margin: 0 0 10px 0; color: #333; }
+        .lookup-flyout label { display: block; font-size: 14px; margin-bottom: 8px; padding: 6px 8px; border-radius: 4px; }
+        .lookup-flyout label:hover { background-color: #dcdcdc; }
+        .lookup-flyout input { margin-right: 6px; accent-color: #0d86fe; }
+        .dim-pill { font-size: 13px; font-weight: 500; padding: 4px 10px; border-radius: 9999px; border: 1px solid #b3d1ff; background-color: #e6f0ff; color: #004a9e; cursor: grab; }
+        .metric-pill { font-size: 13px; font-weight: 500; padding: 4px 10px; border-radius: 9999px; border: 1px solid #ffecb3; background-color: #fff8e1; color: #614a00; cursor: grab; }
+        .radio-label { display: flex; align-items: center; padding: 8px; border-radius: 4px; border: 1px solid transparent; }
+        .radio-label:hover { background-color: #f4f4f4; }
+        .radio-label input:checked + span { font-weight: 600; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen">
+    <div class="flex flex-col w-full h-full">
+        <!-- App Header and Navigation -->
+        <header class="bg-white border-b border-gray-200 px-6">
+            <nav class="flex -mb-px">
+                <button class="nav-tab active text-gray-600 font-medium py-4 px-6 border-b-2 border-transparent" onclick="showPage('page-connections')">1. Connections</button>
+                <button class="nav-tab text-gray-600 font-medium py-4 px-6 border-b-2 border-transparent" onclick="showPage('page-dataview')">2. Data Views</button>
+                <button class="nav-tab text-gray-600 font-medium py-4 px-6 border-b-2 border-transparent" onclick="showPage('page-workspace')">3. Workspace</button>
+            </nav>
+        </header>
+
+        <!-- =================================================================== -->
+        <!-- PAGE 1: CJA CONNECTION UI (B2B Key Pair UI)                         -->
+        <!-- =================================================================== -->
+        <main id="page-connections" class="page flex-col flex-grow p-6 overflow-y-auto overflow-x-hidden bg-gray-50">
+            <h1 class="text-2xl font-semibold text-gray-800 mb-6">B2B: Website & Pipeline Analytics</h1>
+            
+            <div class="flex flex-col lg:flex-row gap-6 flex-1 min-w-0">
+                <!-- Left Nav Tabs -->
+                <div class="lg:w-1/5 flex-shrink-0">
+                    <div class="space-y-1">
+                        <div class="spectrum-Tabs-item">Event datasets</div>
+                        <div class="spectrum-Tabs-item">Profile datasets</div>
+                        <div class="spectrum-Tabs-item is-selected">Lookup datasets</div>
+                    </div>
+                </div>
+                
+                <!-- Main Configuration Area -->
+                <div class="flex-1 bg-white border border-gray-200 rounded-lg shadow-sm p-6 overflow-hidden min-w-0">
+                    <h2 class="text-xl font-semibold mb-4">Add datasets</h2>
+                    <p class="text-sm text-gray-600 mb-6">Configure lookup datasets. For B2B, each "key pair" can be matched by field or by container.</p>
+                    
+                    <div class="border border-gray-200 rounded-md p-5 mb-4">
+                        <h3 class="text-lg font-semibold mb-4">Opportunity Lookup</h3>
+                        
+                        <!-- Key Pair #1: Match by Container -->
+                        <div class="border-b border-gray-200 pb-4">
+                            <h4 class="text-base font-semibold text-gray-700 mb-3">Key pair #1</h4>
+                            
+                            <!-- B2B MATCHING METHOD -->
+                            <div>
+                                <label class="spectrum-Label">Matching Method</label>
+                                <div class="flex gap-6 mb-4">
+                                    <label class="radio-label"><input type="radio" name="pair1-match" onclick="toggleB2BFields(1, 'field')"> <span>Match by field</span></label>
+                                    <label class="radio-label"><input type="radio" name="pair1-match" checked onclick="toggleB2BFields(1, 'container')"> <span>Match by container</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Path Name -->
+                            <div>
+                                <label class="spectrum-Label flex items-center gap-1" for="path-1">
+                                    Path Name <span class="text-red-600">*</span> <span class="badge-new">NEW</span>
+                                    <div class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">This name creates a unique path to this lookup (e.g., "Event Opportunity"). You will use this in the Data View to choose which join to use.</span>
+                                    </div>
+                                </label>
+                                <input type="text" id="path-1" class="spectrum-Textfield mb-4" value="Event Opportunity (via Container)">
+                            </div>
+
+                            <!-- Match by Field Set (Hidden) -->
+                            <div id="pair1-match-by-field-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4" style="display: none;">
+                                <div>
+                                    <label class="spectrum-Label" for="key-1">Key (from Opportunity Lookup) <span class="text-red-600">*</span></label>
+                                    <select id="key-1" class="spectrum-Picker">
+                                        <option>opportunity_id</option>
+                                        <option>account_id</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="spectrum-Label" for="match-1">Matching key (from Event) <span class="text-red-600">*</span></label>
+                                    <select id="match-1" class="spectrum-Picker">
+                                        <option>opportunity_id (from Website Visits)</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="spectrum-Label flex items-center gap-1" for="acct-1-field">
+                                        Account field (optional)
+                                        <div class="tooltip-container">
+                                            <span class="tooltip-icon">i</span>
+                                            <span class="tooltip-text">Optional: Select the Account ID on this lookup to optimize query performance in Workspace, especially for high-cardinality lookups.</span>
+                                        </div>
+                                    </label>
+                                    <select id="acct-1-field" class="spectrum-Picker">
+                                        <option>Select account field...</option>
+                                        <option>account_id</option>
+                                        <option>global_account_id</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Match by Container Set (Visible) -->
+                            <div id="pair1-match-by-container-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div>
+                                    <label class="spectrum-Label" for="container-1">Container <span class="text-red-600">*</span></label>
+                                    <select id="container-1" class="spectrum-Picker">
+                                        <option>Opportunity</option>
+                                        <option>Account</option>
+                                        <option>Global Account</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="spectrum-Label" for="acct-field-1-cont">Account field (from this lookup) <span class="text-red-600">*</span>
+                                        <div class="tooltip-container inline-block ml-1">
+                                            <span class="tooltip-icon">i</span>
+                                            <span class="tooltip-text">Required: Select the Account ID on this lookup to ensure correct data-to-account association for container matching.</span>
+                                        </div>
+                                    </label>
+                                    <select id="acct-field-1-cont" class="spectrum-Picker">
+                                        <option>account_id</option>
+                                        <option>global_account_id</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Pair #2: Match by Container (Initially hidden) -->
+                        <div id="key-pair-2" class="border-b border-gray-200 py-4" style="display: none;">
+                            <h4 class="text-base font-semibold text-gray-700 mb-3">Key pair #2</h4>
+                            
+                            <!-- B2B MATCHING METHOD -->
+                            <div>
+                                <label class="spectrum-Label">Matching Method</label>
+                                <div class="flex gap-6 mb-4">
+                                    <label class="radio-label"><input type="radio" name="pair2-match" onclick="toggleB2BFields(2, 'field')"> <span>Match by field</span></label>
+                                    <label class="radio-label"><input type="radio" name="pair2-match" checked onclick="toggleB2BFields(2, 'container')"> <span>Match by container</span></label>
+                                </div>
+                            </div>
+                            
+                            <!-- Path Name -->
+                            <div>
+                                <label class="spectrum-Label flex items-center gap-1" for="path-2">
+                                    Path Name <span class="text-red-600">*</span>
+                                </label>
+                                <input type="text" id="path-2" class="spectrum-Textfield mb-4" value="Account's Total Pipeline (via Container)">
+                            </div>
+
+                            <!-- Match by Field Set (Hidden) -->
+                            <div id="pair2-match-by-field-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4" style="display: none;">
+                                <!-- ... fields ... -->
+                            </div>
+                            
+                            <!-- Match by Container Set -->
+                            <div id="pair2-match-by-container-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div>
+                                    <label class="spectrum-Label" for="container-2">Container <span class="text-red-600">*</span></label>
+                                    <select id="container-2" class="spectrum-Picker">
+                                        <option>Account</option>
+                                        <option>Opportunity</option>
+                                        <option>Global Account</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="spectrum-Label" for="acct-field-2-cont">Account field (from this lookup) <span class="text-red-600">*</span></label>
+                                    <select id="acct-field-2-cont" class="spectrum-Picker">
+                                        <option>account_id</option>
+                                        <option>global_account_id</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Pair #3: Match by Field (Initially hidden) -->
+                        <div id="key-pair-3" class="border-b border-gray-200 py-4" style="display: none;">
+                            <h4 class="text-base font-semibold text-gray-700 mb-3">Key pair #3</h4>
+                            
+                            <!-- B2B MATCHING METHOD -->
+                            <div>
+                                <label class="spectrum-Label">Matching Method</label>
+                                <div class="flex gap-6 mb-4">
+                                    <label class="radio-label"><input type="radio" name="pair3-match" checked onclick="toggleB2BFields(3, 'field')"> <span>Match by field</span></label>
+                                    <label class="radio-label"><input type="radio" name="pair3-match" onclick="toggleB2BFields(3, 'container')"> <span>Match by container</span></label>
+                                </div>
+                            </div>
+                            
+                            <!-- Path Name -->
+                            <div>
+                                <label class="spectrum-Label flex items-center gap-1" for="path-3">
+                                    Path Name <span class="text-red-600">*</span>
+                                </label>
+                                <input type="text" id="path-3" class="spectrum-Textfield mb-4" value="Opp Value by Person (via Field)">
+                            </div>
+
+                            <!-- Match by Field Set -->
+                            <div id="pair3-match-by-field-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div>
+                                    <label class="spectrum-Label" for="key-3">Key (from Opportunity Lookup) <span class="text-red-600">*</span></label>
+                                    <select id="key-3" class="spectrum-Picker">
+                                        <option>primary_person_id</option>
+                                        <option>opportunity_id</option>
+                                        <option>account_id</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="spectrum-Label" for="match-3">Matching key (from Person Lookup) <span class="text-red-600">*</span></label>
+                                    <select id="match-3" class="spectrum-Picker">
+                                        <option>person_id (from Person Lookup)</option>
+                                        <option>opportunity_id (from Website Visits)</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="spectrum-Label flex items-center gap-1" for="acct-3-field">
+                                        Account field (optional)
+                                    </label>
+                                    <select id="acct-3-field" class="spectrum-Picker">
+                                        <option>account_id</option>
+                                        <option>Select account field...</option>
+                                        <option>global_account_id</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Match by Container Set (Hidden) -->
+                            <div id="pair3-match-by-container-set" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4" style="display: none;">
+                                <!-- ... fields ... -->
+                            </div>
+                        </div>
+                        
+                        <!-- Add Pair Buttons -->
+                        <div id="add-pair-button-container-1" class="pt-4">
+                            <button class="btn-secondary text-sm font-semibold py-1.5 px-3 rounded" onclick="addNewPair2()">
+                                + Add new pair
+                            </button>
+                        </div>
+                        <div id="add-pair-button-container-2" class="pt-4" style="display: none;">
+                            <button class="btn-secondary text-sm font-semibold py-1.5 px-3 rounded" onclick="addNewPair3()">
+                                + Add new pair
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer/Actions -->
+            <footer class="mt-auto pt-6 text-right fixed bottom-0 right-0 p-4 bg-gray-50 w-full">
+                <button class="btn-primary text-white font-semibold py-2 px-4 rounded-md shadow-sm" onclick="showPage('page-dataview')">
+                    Save and Continue to Data View
+                </button>
+            </footer>
+        </main>
+
+        <!-- =================================================================== -->
+        <!-- PAGE 2: CJA DATA VIEW UI (Interactive)                              -->
+        <!-- =================================================================== -->
+        <main id="page-dataview" class="page" style="display: none; padding: 0; height: 100%;">
+            <div class="w-full h-full flex flex-col">
+                <div class="p-4 border-b border-gray-200 bg-white flex-shrink-0 flex justify-between items-center">
+                    <h1 class="text-xl font-semibold text-gray-800">Data View: B2B Pipeline DV</h1>
+                    <button class="btn-primary text-white font-semibold py-2 px-4 rounded-md shadow-sm" onclick="showPage('page-workspace')">
+                        Save and go to Workspace
+                    </button>
+                </div>
+                <div class="grid grid-cols-12 flex-grow h-0">
+                    <!-- Left Rail: Schema (Interactive) -->
+                    <div class="col-span-3 dv-left-rail flex-shrink-0 h-full overflow-y-auto">
+                        <div class="p-4">
+                            <input type="text" placeholder="Search schema fields" class="spectrum-Textfield">
+                        </div>
+                        
+                        <div class="dv-component-group">Lookup datasets</div>
+                        <div class="dv-dataset-item" id="account-lookup-toggle" onclick="toggleLookupDetails('account-lookup')">
+                            <code>Account Lookup</code>
+                        </div>
+                        <div class="lookup-flyout" id="account-lookup-flyout" style="display: none;">
+                            <div class="pl-2">
+                                <div class="dv-component-item !pl-2 !pb-1" onclick="addComponent('account_name', 'Account Lookup')"><code>account_name</code></div>
+                            </div>
+                        </div>
+
+                        <div class="dv-dataset-item" id="opportunity-lookup-toggle" onclick="toggleLookupDetails('opportunity-lookup')">
+                            <code>Opportunity Lookup</code>
+                        </div>
+                        <div class="lookup-flyout" id="opportunity-lookup-flyout" style="display: none;">
+                            <h4>Choose a join path:</h4>
+                            <label>
+                                <input type="radio" name="opp-join-path" value="Event Opportunity (via Container)" checked> <strong>via "Event Opportunity (via Container)"</strong>
+                            </label>
+                            <label>
+                                <input type="radio" name="opp-join-path" value="Account's Total Pipeline (via Container)"> <strong>via "Account's Total Pipeline (via Container)"</strong>
+                            </label>
+                            <label>
+                                <input type="radio" name="opp-join-path" value="Opp Value by Person (via Field)"> <strong>via "Opp Value by Person (via Field)"</strong>
+                            </label>
+                            <hr class="my-3 border-gray-300">
+                            <h4>Fields:</h4>
+                            <div class="pl-2">
+                                <div class="dv-component-item !pl-2 !pb-1 metric" onclick="addComponent('deal_value', 'Opportunity Lookup')"><code>deal_value</code></div>
+                                <div class="dv-component-item !pl-2 !pb-1" onclick="addComponent('status', 'Opportunity Lookup')"><code>status</code></div>
+                            </div>
+                        </div>
+
+                        <div class="dv-dataset-item" id="person-lookup-toggle" onclick="toggleLookupDetails('person-lookup')">
+                            <code>Person Lookup</code>
+                        </div>
+                        <div class="lookup-flyout" id="person-lookup-flyout" style="display: none;">
+                            <div class="pl-2">
+                                <div class="dv-component-item !pl-2 !pb-1" onclick="addComponent('person_name', 'Person Lookup')"><code>person_name</code></div>
+                            </div>
+                        </div>
+                        
+                        <div class="dv-component-group">Event datasets</div>
+                        <div class="dv-dataset-item"><code>Website Visits</code></div>
+                        <div class="dv-component-item !pl-10 metric" onclick="addComponent('visits', 'Website Visits')"><code>Website Visits</code></div>
+
+                    </div>
+
+                    <!-- Center Rail: Included Components -->
+                    <div class="col-span-5 h-full overflow-y-auto bg-white">
+                        <div class="p-4">
+                            <h2 class="text-lg font-semibold mb-4">Included components (<span id="component-count">1</span>)</h2>
+                            <input type="text" placeholder="Search components" class="spectrum-Textfield mb-4">
+                            <table class="w-full dv-main-table">
+                                <thead>
+                                    <tr><th colspan="4">METRICS (<span id="metrics-count">1</span>)</th></tr>
+                                    <tr>
+                                        <th>COMPONENT NAME</th>
+                                        <th>DATASET</th>
+                                        <th>SCHEMA PATH</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="metrics-tbody">
+                                    <!-- Components will be rendered here -->
+                                </tbody>
+                            </table>
+                            <table class="w-full dv-main-table mt-6">
+                                <thead>
+                                    <tr><th colspan="4">DIMENSIONS (<span id="dimensions-count">0</span>)</th></tr>
+                                    <tr>
+                                        <th>COMPONENT NAME</th>
+                                        <th>DATASET</th>
+                                        <th>SCHEMA PATH</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dimensions-tbody">
+                                    <!-- Components will be rendered here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right Rail: Component Settings -->
+                    <div class="col-span-4 h-full overflow-y-auto bg-gray-50 border-l border-gray-200">
+                        <div id="config-rail-placeholder" class="p-6 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">Select a component</h3>
+                            <p class="mt-1 text-sm text-gray-500">Select a component from the center panel to edit its settings.</p>
+                        </div>
+                        <div id="config-rail" style="display: none;">
+                            <div class="p-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold">Component settings</h3>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <div>
+                                    <label class="spectrum-Label" for="component-name-input">Component Name</label>
+                                    <input type="text" id="component-name-input" class="spectrum-Textfield" oninput="updateComponentName(this.value)">
+                                </div>
+                                <div>
+                                    <h4 class="spectrum-Label">Dataset</h4>
+                                    <p id="component-dataset-info" class="text-sm text-gray-700"></p>
+                                </div>
+                                <div>
+                                    <h4 class="spectrum-Label">Schema Path</h4>
+                                    <p id="component-schema-info" class="text-sm text-gray-600 font-mono text-xs"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- =================================================================== -->
+        <!-- PAGE 3: ANALYSIS WORKSPACE                                          -->
+        <!-- =================================================================== -->
+        <main id="page-workspace" class="page" style="display: none; padding: 0; height: 100%;">
+            <div class="w-full h-full flex flex-col">
+                <h1 class="text-2xl font-semibold text-gray-800 p-6 pb-0 flex-shrink-0">Workspace: B2B Pipeline Analysis</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-grow h-0 p-6 pt-6">
+                    <!-- Left Rail: Components (Dynamic) -->
+                    <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col h-full max-h-full">
+                        <div class="p-4 border-b border-gray-100">
+                            <h2 class="text-lg font-semibold">Components</h2>
+                        </div>
+                        <div id="workspace-components-rail" class="p-4 overflow-y-auto">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Main Panel: Report (from B2B Example 1) -->
+                    <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col h-full max-h-full">
+                        <div class="p-6 overflow-y-auto">
+                            <h3 class="text-xl font-semibold mb-2">Freeform Table: Pipeline Impact of Web Visits</h3>
+                            <p class="text-sm text-gray-600 mb-4"><strong>Business Question:</strong> "Show me the value of the opp from the visit, the total open pipeline for the account, AND the total pipeline associated with the people from that account."</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-max border-collapse text-sm ws-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="border border-gray-200 p-3 text-left">Account Name</th>
+                                            <th class="border border-gray-200 p-3 text-right">Website Visits</th>
+                                            <th class="border border-gray-200 p-3 text-right">Event Opp Value (Sum)</th>
+                                            <th class="border border-gray-200 p-3 text-right">Total Open Account Value (Sum)</th>
+                                            <th class="border border-gray-200 p-3 text-right">Opp Value by Person (Sum)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr>
+                                            <td class="border-b border-gray-200 p-3">Global Tech Inc.</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">150</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$80,000</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$4,500,000</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$250,000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border-b border-gray-200 p-3">FinServe Corp.</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">88</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$0</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$1,200,000</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$0</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border-b border-gray-200 p-3">HealthGlobal</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">210</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$50,000</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$2,100,000</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">$375,000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border-b border-gray-200 p-3">...</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">...</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">...</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">...</td>
+                                            <td class="border-b border-gray-200 p-3 text-right">...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 
+    ===================================================================
+    CLEAN JAVASCRIPT BLOCK
+    All functions are explicitly attached to the window object to
+    ensure they are callable from the HTML onclick attributes.
+    ===================================================================
+    -->
+    <script>
+        // --- Data State ---
+        let includedComponents = [
+            { id: 'c1', name: 'Website Visits', dataset: 'Website Visits', schemaPath: '_tenant.visits', type: 'metric' }
+        ];
+        let selectedComponentId = null;
+        let idCounter = 2; // Start after c1
+
+        // --- Navigation ---
+        window.showPage = function(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                if (page) page.style.display = 'none';
+            });
+            const targetPage = document.getElementById(pageId);
+            
+            if (targetPage) {
+                if (pageId === 'page-connections') {
+                    targetPage.style.display = 'flex';
+                } else {
+                    targetPage.style.display = 'block';
+                }
+            }
+            
+            if (pageId === 'page-workspace') {
+                window.renderWorkspaceComponents();
+            }
+
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            const activeTab = document.querySelector(`.nav-tab[onclick="showPage('${pageId}')"]`);
+            if (activeTab) activeTab.classList.add('active');
+        }
+
+        // --- Page 1: Connections ---
+        window.addNewPair2 = function() {
+            const pair2 = document.getElementById('key-pair-2');
+            const button1 = document.getElementById('add-pair-button-container-1');
+            const button2 = document.getElementById('add-pair-button-container-2');
+            if(pair2) pair2.style.display = 'block';
+            if(button1) button1.style.display = 'none';
+            if(button2) button2.style.display = 'block';
+        }
+        
+        window.addNewPair3 = function() {
+            const pair3 = document.getElementById('key-pair-3');
+            const button2 = document.getElementById('add-pair-button-container-2');
+            if(pair3) pair3.style.display = 'block';
+            if(button2) button2.style.display = 'none';
+        }
+
+        window.toggleB2BFields = function(pairNum, method) {
+            const fieldSet = document.getElementById(`pair${pairNum}-match-by-field-set`);
+            const containerSet = document.getElementById(`pair${pairNum}-match-by-container-set`);
+
+            if (method === 'field') {
+                if(fieldSet) fieldSet.style.display = 'grid';
+                if(containerSet) containerSet.style.display = 'none';
+            } else { // 'container'
+                if(fieldSet) fieldSet.style.display = 'none';
+                if(containerSet) containerSet.style.display = 'grid';
+            }
+        }
+
+        // --- Page 2: Data View ---
+        window.toggleLookupDetails = function(datasetId) {
+            const flyout = document.getElementById(`${datasetId}-flyout`);
+            const toggle = document.getElementById(`${datasetId}-toggle`);
+            
+            if (flyout && toggle) {
+                if (flyout.style.display === 'none') {
+                    flyout.style.display = 'block';
+                    toggle.classList.add('active');
+                } else {
+                    flyout.style.display = 'none';
+                    toggle.classList.remove('active');
+                }
+            }
+        }
+
+        window.addComponent = function(fieldKey, dataset) {
+            let newComponent = {
+                id: `comp_${idCounter++}`
+            };
+
+            if (dataset === 'Website Visits') {
+                if (fieldKey === 'visits') {
+                    if (includedComponents.find(c => c.name === 'Website Visits')) return;
+                    newComponent.name = 'Website Visits';
+                    newComponent.dataset = 'Website Visits';
+                    newComponent.schemaPath = '_tenant.visits';
+                    newComponent.type = 'metric';
+                }
+            } else if (dataset === 'Opportunity Lookup') {
+                const selectedPathRadio = document.querySelector('input[name="opp-join-path"]:checked');
+                const pathName = selectedPathRadio ? selectedPathRadio.value : 'Event Opportunity (via Container)';
+                
+                if (fieldKey === 'deal_value') {
+                    newComponent.name = 'deal_value';
+                    newComponent.dataset = `Opportunity Lookup (${pathName})`;
+                    newComponent.schemaPath = '_tenant.deal_value';
+                    newComponent.type = 'metric';
+                } else if (fieldKey === 'status') {
+                    newComponent.name = 'status';
+                    newComponent.dataset = `Opportunity Lookup (${pathName})`;
+                    newComponent.schemaPath = '_tenant.status';
+                    newComponent.type = 'dimension';
+                }
+            } else if (dataset === 'Account Lookup') {
+                 newComponent.name = 'Account Name';
+                 newComponent.dataset = 'Account Lookup';
+                 newComponent.schemaPath = '_tenant.account_name';
+                 newComponent.type = 'dimension';
+            } else if (dataset === 'Person Lookup') {
+                 newComponent.name = 'Person Name';
+                 newComponent.dataset = 'Person Lookup';
+                 newComponent.schemaPath = '_tenant.person_name';
+                 newComponent.type = 'dimension';
+            }
+            
+            includedComponents.push(newComponent);
+            window.renderIncludedComponents();
+            window.selectComponent(newComponent.id);
+        }
+
+        window.renderIncludedComponents = function() {
+            const metricsBody = document.getElementById('metrics-tbody');
+            const dimensionsBody = document.getElementById('dimensions-tbody');
+            const componentCount = document.getElementById('component-count');
+
+            if (!metricsBody || !dimensionsBody || !componentCount) return;
+
+            metricsBody.innerHTML = '';
+            dimensionsBody.innerHTML = '';
+            componentCount.textContent = includedComponents.length;
+
+            let metricCount = 0;
+            let dimensionCount = 0;
+
+            includedComponents.forEach(component => {
+                const isSelected = component.id === selectedComponentId;
+                const rowHtml = `
+                    <tr class="${isSelected ? 'selected-row' : ''} hover:bg-gray-50 cursor-pointer" onclick="selectComponent('${component.id}')">
+                        <td class="flex items-center gap-2">
+                            <span>${component.name}</span>
+                        </td>
+                        <td>${component.dataset}</td>
+                        <td>${component.schemaPath}</td>
+                        <td class="text-right">
+                            <button class="delete-btn text-gray-500 hover:text-red-600 font-bold text-lg px-2" onclick="deleteComponent('${component.id}', event)">&times;</button>
+                        </td>
+                    </tr>
+                `;
+
+                if (component.type === 'metric') {
+                    metricsBody.innerHTML += rowHtml;
+                    metricCount++;
+                } else {
+                    dimensionsBody.innerHTML += rowHtml;
+                    dimensionCount++;
+                }
+            });
+
+            const metricsCountEl = document.getElementById('metrics-count');
+            const dimensionsCountEl = document.getElementById('dimensions-count');
+            if(metricsCountEl) metricsCountEl.textContent = metricCount;
+            if(dimensionsCountEl) dimensionsCountEl.textContent = dimensionCount;
+        }
+
+        window.selectComponent = function(id) {
+            selectedComponentId = id;
+            const component = includedComponents.find(c => c.id === id);
+            
+            const configRail = document.getElementById('config-rail');
+            const placeholder = document.getElementById('config-rail-placeholder');
+            
+            if (component && configRail && placeholder) {
+                configRail.style.display = 'block';
+                placeholder.style.display = 'none';
+                
+                document.getElementById('component-name-input').value = component.name;
+                document.getElementById('component-dataset-info').textContent = component.dataset;
+                document.getElementById('component-schema-info').textContent = component.schemaPath;
+            }
+            window.renderIncludedComponents();
+        }
+        
+        window.deselectComponent = function() {
+            selectedComponentId = null;
+            const configRail = document.getElementById('config-rail');
+            const placeholder = document.getElementById('config-rail-placeholder');
+            if(configRail) configRail.style.display = 'none';
+            if(placeholder) placeholder.style.display = 'block';
+            window.renderIncludedComponents();
+        }
+
+        window.deleteComponent = function(id, event) {
+            event.stopPropagation();
+            includedComponents = includedComponents.filter(c => c.id !== id);
+            
+            if (selectedComponentId === id) {
+                window.deselectComponent();
+            } else {
+                window.renderIncludedComponents();
+            }
+        }
+
+        window.updateComponentName = function(newName) {
+            if (selectedComponentId) {
+                const component = includedComponents.find(c => c.id === selectedComponentId);
+                if (component) {
+                    component.name = newName;
+                    window.renderIncludedComponents();
+                }
+            }
+        }
+
+        // --- Page 3: Workspace ---
+        window.renderWorkspaceComponents = function() {
+            const rail = document.getElementById('workspace-components-rail');
+            if (!rail) return;
+
+            const metrics = includedComponents.filter(c => c.type === 'metric');
+            const dimensions = includedComponents.filter(c => c.type === 'dimension');
+
+            let html = '<h3 class="text-base font-semibold text-gray-700 mb-2">Dimensions</h3>';
+            html += '<div class="flex flex-wrap gap-2">';
+            dimensions.forEach(d => {
+                html += `<span class="dim-pill">${d.name}</span>`;
+            });
+            if (dimensions.length === 0) html += `<p class="text-sm text-gray-500 italic">No dimensions configured.</p>`;
+            html += '</div>';
+
+            html += '<h3 class="text-base font-semibold text-gray-700 mt-4 mb-2">Metrics</h3>';
+            html += '<div class="flex flex-wrap gap-2">';
+            metrics.forEach(m => {
+                html += `<span class="metric-pill">${m.name}</span>`;
+            });
+            if (metrics.length === 0) html += `<p class="text-sm text-gray-500 italic">No metrics configured.</p>`;
+            html += '</div>';
+
+            rail.innerHTML = html;
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Now that functions are on `window`, we can just call them.
+            window.showPage('page-connections');
+            window.renderIncludedComponents();
+        });
+    </script>
+</body>
+</html>
+

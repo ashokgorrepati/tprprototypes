@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>TPR Prototypes Hub</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {margin:0;font:14px/1.4 system-ui,Segoe UI,Roboto,Inter,sans-serif;}
+    .wrap {display:grid;grid-template-columns:280px 1fr;height:100vh;}
+    nav {border-right:1px solid #e5e7eb;padding:12px;overflow:auto}
+    nav a {display:block;padding:8px 10px;margin:4px 0;border-radius:6px;text-decoration:none;color:#111}
+    nav a.active, nav a:hover {background:#eef6ff;color:#0b63ce}
+    header{padding:10px 12px;border-bottom:1px solid #e5e7eb}
+    #viewer{width:100%;height:calc(100vh - 50px);border:0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav id="menu"></nav>
+    <main>
+      <header><strong id="title">Prototype</strong></header>
+      <iframe id="viewer" src="" title="Prototype preview"></iframe>
+    </main>
+  </div>
+  <script>
+    // List your 12 files (relative paths in the repo)
+    const files = [
+      "Shared Lookups_Future Experience_B2C.html",
+      "Shared Lookups_Future Experience_B2B.html",
+      "B2C Profile Only Queries v2.html",
+      "B2B Profile-Only Queries v2.html",
+  "TPR Profile Only Multi Profile_B2C v2.html",
+      "B2B Profile-Only Multi Profile Queries v2.html",
+      "TPR Queries Profile + Event_Union B2C.html",
+"Profile + Event TPR Query_Union B2B.html",
+       "TPR Profile Plus Event Multi Metric Query_B2B.html",
+      "TPR Profile Plus Event Multi Metric Query_B2C.html",
+"TPR Profile Plus Event Calc Metric Query_B2B.html",
+      "TPR Profile Plus Event Calc Metric Query_B2C.html",
+      "TPR Profile Minus Event Query_B2B.html",
+      "TPR Profile Minus Event Query_B2C.html",
+    ];
+
+    const menu = document.getElementById('menu');
+    const viewer = document.getElementById('viewer');
+    const title = document.getElementById('title');
+
+    function load(idx) {
+      const links = menu.querySelectorAll('a');
+      links.forEach((a,i)=>a.classList.toggle('active', i===idx));
+      const file = files[idx];
+      title.textContent = file;
+      viewer.src = file;                 // loads the HTML file in the iframe
+      location.hash = idx;               // deep-linking
+    }
+
+    // build menu
+    files.forEach((file, i) => {
+      const a = document.createElement('a');
+      a.href = "javascript:void(0)";
+      a.textContent = `${i+1}. ${file}`;
+      a.onclick = () => load(i);
+      menu.appendChild(a);
+    });
+
+    // initialize from hash or first item
+    const start = Math.max(0, parseInt(location.hash.slice(1),10) || 0);
+    load(start);
+  </script>
+</body>
+</html>
